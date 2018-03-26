@@ -188,7 +188,7 @@ array(15, 12, 10,  4,  1, 14, 11,  7,  5,  0, 14,  7,  1,  2, 13,  8,
 		array_push($Kc, 0);
 	}
 	$_SESSION['SRES_string'] = implode("",$SRES);
-	$arr = array('RAND' => $byteRand, 'Kc' => implode("",$Kc));
+	$arr = array('RAND' => $byteRand, 'Kc' => implode("",$Kc), 'SRES_str' => implode("",$SRES));
 
 
 	echo json_encode($arr);	

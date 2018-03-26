@@ -14,26 +14,45 @@ function requestData()
 			'mobile' : mobile	
 		},
 		cache:false,
+                beforeSend : function(){
+                        $("#sim1").html("Requesting for Authentication");
+                },
 		success : function(msg){
-			//console.log(msg);
+                        $("#msc1").html("Request Received...<br>")
+			if(msg == "error")
+                                $("#msc2").html("Entry not found. Invalid SIM");
+                        else
+                        {
 			var data2 = JSON.parse(msg);
-                        $.getJSON('sims.json',function(data){
-                                var flag = 0;
-                                $.each(data, function(key,val){
-                                        if(val['msisdn'] == mobile)
-                                        {
-                                                console.log(data2);
-                                                flag = 1;
-                                                var RES = A3A8(val['ki'],data2['RAND']);
-                                                //console.log(RES);
-                                                verifyRES(RES['RES']);
-                                        }
-                                });
-                                console.log(flag);
-                        });
+                        $("#msc2").html("Challenge Generated...<br><br>RAND:["+data2['RAND']+"]<br>Kc:"+data2['Kc']+"<br>SRES:"+data2['SRES_str']);
+                        getSIMDetails(mobile,data2['RAND']);
+                        }
 		}
 	});
 }
+
+function getSIMDetails(mobile,RAND)
+{
+        $.getJSON('sims.json',function(data){
+                $("#sim2").html("Received RAND...");
+                var flag = 0;
+                $.each(data, function(key,val){
+                        if(val['msisdn'] == mobile)
+                        {
+                                flag = 1;
+                                $("#sim3").html("Generating RES...");
+                                var RES = A3A8(val['ki'],RAND);
+                                $("#sim4").html("RES:"+RES['RES']);
+                                verifyRES(RES['RES']);
+                        }
+                });
+                if(flag == 0)
+                {
+                   $("#sim3").html("SIM unavailable");     
+                }
+        });
+}
+
 
 function verifyRES(RES)
 {
@@ -44,11 +63,23 @@ function verifyRES(RES)
                         'RES' : RES
                 },
                 cache : false,
+                beforeSend : function(){
+                        $("#sim5").html("RES sent to MSC");
+                        $("#msc3").html("RES received from SIM");
+                },
                 success : function(msg){
                         if(msg == "success")
-                                window.alert("Authentication Successful");
+                        {
+                                $("#msc4").html("SRES and RES match");
+                                $("#sim6").html("Successfully Authenticated");
+                                //window.alert("Authentication Successful");
+                        }
                         else
-                                window.alert("Authentication Failed");
+                        {
+                                $("#msc4").html("SRES and RES don't match");
+                                $("#sim6").html("Authentication Failed");
+                                //window.alert("Authentication Failed");
+                        }
                 }
         });
 }
